@@ -4,16 +4,19 @@ import re
 import sys
 
 # this is combiner
+tmp = {}
+
 for line in sys.stdin:
     line = line.strip()
     words = re.split("[ *$&#/\t\n\f\"\'\\,.:;?!\[\](){}<>~\-_]", line.lower())
 
     for i in range(0, len(words)):
-        if len(words[i]):
-            tmp = {}
-            for j in range(i + 1, len(words)):
-                if len(words[j]):
-                    tmp[words[j]] = tmp.get(words[j], 0) + 1
-            
-            print(words[i], tmp)
+        for j in range(i + 1, len(words)):
+            if len(words[i]) and len(words[j]):
+                k = words[i] + ";" + words[j]
+                tmp[k] = tmp.get(k, 0) + 1
+
+for k, v in tmp.items():
+    print (k + '\t' + str(v))
+
 

@@ -2,32 +2,12 @@
 
 import sys
 
-"""
-{
-    'word': {
-        'k': count
-    }
-}
-"""
 result = {}
 
 for line in sys.stdin:
-    word, freq = line.strip().split(' ', 1)
-    freq = eval(freq)
-
-    if word in result:
-        tmp_freq = result[word]
-        for k, v in freq.items():
-            tmp_freq[k] = tmp_freq.get(k, 0) + v
-        result[word] = tmp_freq
-    else:
-        result[word] = freq
+    word, freq = line.strip().split('\t', 1)
+    result[word] = result.get(word, 0) + int(freq)
 
 for k, v in result.items():
-    if not len(v):
-        continue
-
-    for kk, kv in v.items():
-        res = str(k)
-        res += " " + str(kk) + " " + str(kv)
-        print(res)
+    u,w = k.split(';', 1)
+    print(u, w, v)
