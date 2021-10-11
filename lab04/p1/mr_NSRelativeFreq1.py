@@ -32,33 +32,35 @@ class CoTermNSSPair(MRJob):
     
     def mapper_final(self):
         for w, v in self.count.items():
-            yield w + ',*', v
-
+            yield w + ',.', v
             for u, num in self.tmp[w].items():
                 yield w + ',' + u, num
     
+
     def reducer_init(self):
-        self.words = {}
+        self.total = 0
     
     def reducer(self, key, values):
         word = str(key).split(',', 1)
-
-        if word[1] == '*':
-            self.words[word[0]] = self.words.get(word[0], 0) + sum(values)
+        
+        if word[1] == '.':
+            self.total = sum(values)
         else:
-            yield key, sum(values) / self.words[word[0]]
+            yield key, sum(values) / self.total
+                
 
     SORT_VALUES = True
 
     JOBCONF = {
-      'stream.map.output.field.separator':',',
-      'stream.num.map.output.key.fields': 2,
-      'map.output.key.field.separator': ',',
-      'mapred.reduce.tasks': 1,
+      'stream.map.output.field.separator':'.',
+      'stream.num.map.output.key.fields':2,
+      'map.output.key.field.separator': '.',
+      'mapred.reduce.tasks':1,
       'mapreduce.partition.keypartitioner.options':'-k1,1',
       'mapreduce.job.output.key.comparator.class':'org.apache.hadoop.mapreduce.lib.partition.KeyFieldBasedComparator',
       'mapreduce.partition.keycomparator.options':'-k1,1 -k2,2n'
     }
+
 
 
 if __name__ == '__main__':
