@@ -3,9 +3,8 @@ from mrjob.job import MRJob
 
 class CoTermNSSPair(MRJob):
     """
-    the number of reducer is more than 1,
-    then to make sure key-value are in the same reducer
-    we need to modify a little bit of mapper and reducer
+    the number of reducer is 1,
+    then we can use map separator
     """
 
     def mapper_init(self):
@@ -33,34 +32,34 @@ class CoTermNSSPair(MRJob):
     
     def mapper_final(self):
         for w, v in self.count.items():
-            self.tmp[w]['*'] = v
-            yield w, str(self.tmp[w])
+            yield w + ',.', v
+            for u, num in self.tmp[w].items():
+                yield w + ',' + u, num
     
+
+    def reducer_init(self):
+        self.total = 0
     
     def reducer(self, key, values):
+        word = str(key).split(',', 1)
         
-        count = {}
-        for value in values:
-            value = eval(value)
-            for k, v in value.items():
-                count[k] = count.get(k, 0) + v
-        
-        for k, v in count.items():
-            if k == "*":
-                continue
-
-            yield key + ',' + k , v / count['*']
-
+        if word[1] == '.':
+            self.total = sum(values)
+        else:
+            yield key, sum(values) / self.total
+                
 
     SORT_VALUES = True
 
     JOBCONF = {
       'map.output.key.field.separator': ',',
-      'mapred.reduce.tasks': 2,
+      'mapred.reduce.tasks': 3,
       'mapreduce.partition.keypartitioner.options':'-k1,1',
-      'mapreduce.job.output.key.comparator.class':'org.apache.hadoop.mapreduce.lib.partition.KeyFieldBasedComparator',
-      'mapreduce.partition.keycomparator.options':'-k1,1 -k2,2n'
+      'partitioner':'org.apache.hadoop.mapred.lib.KeyFieldBasedPartitioner',
+      'mapreduce.partition.keycomparator.options':'-k1,1 -k2,2n',
+      'mapreduce.job.output.key.comparator.class':'org.apache.hadoop.mapreduce.lib.partition.KeyFieldBasedComparator'
     }
+
 
 
 if __name__ == '__main__':

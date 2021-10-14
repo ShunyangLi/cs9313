@@ -22,7 +22,7 @@ class ReverseDirect(MRJob):
 
     JOBCONF = {
       'map.output.key.field.separator': ',',
-      'mapred.reduce.tasks': 1,
+      'mapred.reduce.tasks':3,
       'mapreduce.partition.keypartitioner.options':'-k1,1',
       'mapreduce.job.output.key.comparator.class':'org.apache.hadoop.mapreduce.lib.partition.KeyFieldBasedComparator',
       'mapreduce.partition.keycomparator.options':'-k1,1 -k2,2n'

@@ -18,4 +18,4 @@ for line in sys.stdin:
 for k, v in result.items():
     word = k.split(',', 1)
 
-    print(key, v / count[word[0]])
+    print(k, v / count[word[0]])
